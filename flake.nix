@@ -1,5 +1,5 @@
 {
-  description = "Custom-Built MLIR";
+  description = "Custom-Built MLIR Tools";
 
   # Nixpkgs / NixOS version to use.
   inputs.nixpkgs.url = "nixpkgs/nixos-22.11";
@@ -8,15 +8,16 @@
     let
 
       # git revision to use (for version and git pull
-      gitRevision = "llvmorg-17-init";
-      # gitRevision = "603c286334b07f568d39f6706c848f576914f323";
+      #llvmRevision = "llvmorg-17-init";
+      llvmRevision = "010a97974a158ebca0bdb58346a2b303ab8a401e";
+      circtRevision = "4937a94071b4a3e15c740ae445e14b47e1f8154e";
 
       # to work with older version of flakes
       lastModifiedDate = self.lastModifiedDate or self.lastModified or "19700101";
 
       # Generate a user-friendly version number.
       #version = builtins.substring 0 8 lastModifiedDate;
-      version = gitRevision;
+      version = circtRevision;
 
       # System types to support.
       supportedSystems = [ "x86_64-linux" ]; #"x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
@@ -40,8 +41,8 @@
           src = fetchFromGitHub {
             owner = "llvm";
             repo = "llvm-project";
-            rev = gitRevision;
-            sha256 = "sha256-IAiG7pM+j3dGRb7WzkhWNu0aBgC2plXV0D0DpyuM9tc=";
+            rev = llvmRevision;
+            sha256 = "sha256-iZBZcHYW/rJm+4KAcNZGwryKsYsEQNi1LTpS0Mnm08A=";
           };
 
           sourceRoot = "source/llvm";
@@ -61,11 +62,10 @@
 
 
           cmakeFlags = [
-            # "-DGCC_INSTALL_PREFIX=${gcc}"
-            #"-DC_INCLUDE_DIRS=${stdenv.cc.libc.dev}/include"
             "-GNinja"
             # Debug for debug builds
-            "-DCMAKE_BUILD_TYPE=Release"
+            "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+            "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
             # from the original LLVM expr
             "-DLLVM_LINK_LLVM_DYLIB=ON"
             # inst will be our installation prefix
@@ -100,18 +100,74 @@
           # '';
         };
 
+        circt = with final; llvmPackages_14.stdenv.mkDerivation rec {
+          name = "circt-${version}";
+
+          src = fetchFromGitHub {
+            owner = "llvm";
+            repo = "circt";
+            rev = circtRevision;
+            sha256 = "sha256-jptvNvrTF52vh0NyLqo4Iv6Ov9qttluERZgXsnayKa8=";
+          };
+
+          sourceRoot = "source/";
+
+          nativeBuildInputs = [
+            python3
+            ninja
+            cmake
+            #ncurses
+            #zlib
+            #llvmPackages_14.llvm
+            llvmPackages_14.clang
+            llvmPackages_14.bintools
+            mlir
+            lit
+          ];
+
+          #buildInputs = [ libxml2 ];
+
+
+          cmakeFlags = [
+            "-GNinja"
+            "-DMLIR_DIR=${mlir}/lib/cmake/mlir"
+            "-DLLVM_DIR=${mlir}/lib/cmake/llvm"
+
+            # Debug for debug builds
+            "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+            # from the original LLVM expr
+            "-DLLVM_LINK_LLVM_DYLIB=ON"
+            # this makes llvm only to produce code for the current platform, this saves CPU time, change it to what you need
+            "-DLLVM_TARGETS_TO_BUILD=X86"
+            # NOTE(feliix42): THIS IS ABI BREAKING!!
+            "-DLLVM_ENABLE_ASSERTIONS=ON"
+            "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
+            # Using clang and lld speeds up the build, we recomment adding:
+            "-DCMAKE_C_COMPILER=clang"
+            "-DCMAKE_CXX_COMPILER=clang++"
+            "-DLLVM_ENABLE_LLD=ON"
+            "-DLLVM_EXTERNAL_LIT=${lit}/bin/lit"
+          ];
+
+          # TODO(feliix42): Fix this, as it requires the python package `lit`
+          # postInstall = ''
+          #   cp bin/llvm-lit $out/bin
+          # '';
+        };
+
       };
 
       # Provide some binary packages for selected system types.
       packages = forAllSystems (system:
         {
           inherit (nixpkgsFor.${system}) mlir;
+          inherit (nixpkgsFor.${system}) circt;
         });
 
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
-      defaultPackage = forAllSystems (system: self.packages.${system}.mlir);
+      # defaultPackage = forAllSystems (system: self.packages.${system}.mlir self.packages.${system}.circt);
 
       # A NixOS module, if applicable (e.g. if the package provides a system service).
       nixosModules.mlir =
@@ -120,6 +176,16 @@
           nixpkgs.overlays = [ self.overlay ];
 
           environment.systemPackages = [ pkgs.mlir ];
+
+          #systemd.services = { ... };
+        };
+
+      nixosModules.circt =
+        { pkgs, ... }:
+        {
+          nixpkgs.overlays = [ self.overlay ];
+
+          environment.systemPackages = [ pkgs.circt ];
 
           #systemd.services = { ... };
         };
