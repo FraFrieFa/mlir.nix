@@ -164,6 +164,11 @@
           inherit (nixpkgsFor.${system}) circt;
         });
 
+      hydraJobs = {
+        mlir."x86_64-linux" = self.packages."x86_64-linux".mlir;
+        circt."x86_64-linux" = self.packages."x86_64-linux".circt;
+      };
+
       # The default package for 'nix build'. This makes sense if the
       # flake provides only one package or there is a clear "main"
       # package.
