@@ -9,8 +9,8 @@
 
       # git revision to use (for version and git pull
       #llvmRevision = "llvmorg-17-init";
-      llvmRevision = "010a97974a158ebca0bdb58346a2b303ab8a401e";
-      circtRevision = "4937a94071b4a3e15c740ae445e14b47e1f8154e";
+      llvmRevision = "0a35ac6c2e0cb0160ca2e6cc11644c263692a46d";
+      circtRevision = "720846dd1611a336424e0d8a4ae81fd53b220ced";
 
       # to work with older version of flakes
       lastModifiedDate = self.lastModifiedDate or self.lastModified or "19700101";
@@ -26,23 +26,23 @@
       forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
 
       # Nixpkgs instantiated for supported system types.
-      nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; overlays = [ self.overlay ]; });
+      nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; overlays = [ self.overlays.default ]; });
 
     in
 
     {
 
       # A Nixpkgs overlay.
-      overlay = final: prev: {
+      overlays.default = final: prev: {
 
-        mlir = with final; llvmPackages_14.stdenv.mkDerivation rec {
+        mlir = with final; llvmPackages_16.stdenv.mkDerivation rec {
           name = "mlir-${version}";
 
           src = fetchFromGitHub {
             owner = "llvm";
             repo = "llvm-project";
             rev = llvmRevision;
-            sha256 = "sha256-iZBZcHYW/rJm+4KAcNZGwryKsYsEQNi1LTpS0Mnm08A=";
+            sha256 = "sha256-e8Rr1NZznjnNo3GvD1VSx8yb2ZcUdM2LtZDyNnwIJdU="; # lib.fakeSha256;
           };
 
           sourceRoot = "source/llvm";
@@ -53,9 +53,9 @@
             cmake
             ncurses
             zlib
-            llvmPackages_14.llvm
-            llvmPackages_14.clang
-            llvmPackages_14.bintools
+            llvmPackages_16.llvm
+            llvmPackages_16.clang
+            llvmPackages_16.bintools
           ];
 
           buildInputs = [ libxml2 ];
@@ -85,7 +85,7 @@
             "-DCMAKE_C_COMPILER=clang"
             "-DCMAKE_CXX_COMPILER=clang++"
             "-DLLVM_ENABLE_LLD=ON"
-            #"-DLLVM_USE_LINKER=${llvmPackages_14.bintools}/bin/lld"
+            #"-DLLVM_USE_LINKER=${llvmPackages_16.bintools}/bin/lld"
             # CCache can drastically speed up further rebuilds, try adding:
             #"-DLLVM_CCACHE_BUILD=ON"
             # libxml2 needs to be disabled because the LLVM build system ignores its .la
@@ -100,14 +100,14 @@
           # '';
         };
 
-        circt = with final; llvmPackages_14.stdenv.mkDerivation rec {
+        circt = with final; llvmPackages_16.stdenv.mkDerivation rec {
           name = "circt-${version}";
 
           src = fetchFromGitHub {
             owner = "llvm";
             repo = "circt";
             rev = circtRevision;
-            sha256 = "sha256-jptvNvrTF52vh0NyLqo4Iv6Ov9qttluERZgXsnayKa8=";
+            sha256 = "sha256-iPt50T5+yqTnZKzgR5C6UW97XXfiKR1vXzXTNnvZOjE="; # lib.fakeSha256;
           };
 
           sourceRoot = "source/";
@@ -118,9 +118,9 @@
             cmake
             #ncurses
             #zlib
-            #llvmPackages_14.llvm
-            llvmPackages_14.clang
-            llvmPackages_14.bintools
+            #llvmPackages_16.llvm
+            llvmPackages_16.clang
+            llvmPackages_16.bintools
             mlir
             lit
           ];
@@ -178,7 +178,7 @@
       nixosModules.mlir =
         { pkgs, ... }:
         {
-          nixpkgs.overlays = [ self.overlay ];
+          nixpkgs.overlays = [ self.overlays.default ];
 
           environment.systemPackages = [ pkgs.mlir ];
 
@@ -188,7 +188,7 @@
       nixosModules.circt =
         { pkgs, ... }:
         {
-          nixpkgs.overlays = [ self.overlay ];
+          nixpkgs.overlays = [ self.overlays.default ];
 
           environment.systemPackages = [ pkgs.circt ];
 
