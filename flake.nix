@@ -9,8 +9,8 @@
 
       # git revision to use (for version and git pull
       #llvmRevision = "llvmorg-17-init";
-      llvmRevision = "0a35ac6c2e0cb0160ca2e6cc11644c263692a46d";
-      circtRevision = "720846dd1611a336424e0d8a4ae81fd53b220ced";
+      llvmRevision = "08ed557714eed7f5cde9d1c5606f58280683884a";
+      circtRevision = "39b4f01a665e62b8770ea66b31abe7c1b8a9bfb2";
 
       # to work with older version of flakes
       lastModifiedDate = self.lastModifiedDate or self.lastModified or "19700101";
@@ -42,7 +42,7 @@
             owner = "llvm";
             repo = "llvm-project";
             rev = llvmRevision;
-            sha256 = "sha256-e8Rr1NZznjnNo3GvD1VSx8yb2ZcUdM2LtZDyNnwIJdU="; # lib.fakeSha256;
+            sha256 = "sha256-9fNCqUDWI3Rjizkps5vgLy0ZtMgFeFmyh1yCWLj8NVc="; # lib.fakeSha256;
           };
 
           sourceRoot = "source/llvm";
@@ -107,7 +107,7 @@
             owner = "llvm";
             repo = "circt";
             rev = circtRevision;
-            sha256 = "sha256-iPt50T5+yqTnZKzgR5C6UW97XXfiKR1vXzXTNnvZOjE="; # lib.fakeSha256;
+            sha256 = "sha256-/4UrcwVyQnOwJMpRn0tMfJi/zm5rmrnv9IBE7/2rOY8="; # lib.fakeSha256;
           };
 
           sourceRoot = "source/";
