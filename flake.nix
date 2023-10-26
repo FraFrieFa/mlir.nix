@@ -64,10 +64,11 @@
           cmakeFlags = [
             "-GNinja"
             # Debug for debug builds
-            "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
+            "-DCMAKE_BUILD_TYPE=Debug"
             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
             # from the original LLVM expr
-            "-DLLVM_LINK_LLVM_DYLIB=ON"
+            #"-DLLVM_LINK_LLVM_DYLIB=ON"
+            "-DBUILD_SHARED_LIBS=ON"
             # inst will be our installation prefix
             #"-DCMAKE_INSTALL_PREFIX=../inst"
             # "-DLLVM_INSTALL_TOOLCHAIN_ONLY=ON"
