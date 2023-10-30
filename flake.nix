@@ -64,7 +64,7 @@
           cmakeFlags = [
             "-GNinja"
             # Debug for debug builds
-            "-DCMAKE_BUILD_TYPE=Debug"
+            "-DCMAKE_BUILD_TYPE=RelWithDebInfo"
             "-DCMAKE_EXPORT_COMPILE_COMMANDS=ON"
             # from the original LLVM expr
             "-DLLVM_LINK_LLVM_DYLIB=ON"
