@@ -2,7 +2,7 @@
   description = "Custom-Built MLIR Tools";
 
   # Nixpkgs / NixOS version to use.
-  inputs.nixpkgs.url = "nixpkgs/nixos-23.05";
+  inputs.nixpkgs.url = "nixpkgs/nixos-23.11";
 
   outputs = { self, nixpkgs }:
     let
@@ -35,7 +35,7 @@
       # A Nixpkgs overlay.
       overlays.default = final: prev: {
 
-        mlir = with final; llvmPackages_16.stdenv.mkDerivation rec {
+        mlir = with final; llvmPackages_17.stdenv.mkDerivation rec {
           name = "mlir-${version}";
 
           src = fetchFromGitHub {
@@ -53,9 +53,9 @@
             cmake
             ncurses
             zlib
-            llvmPackages_16.llvm
-            llvmPackages_16.clang
-            llvmPackages_16.bintools
+            llvmPackages_17.llvm
+            llvmPackages_17.clang
+            llvmPackages_17.bintools
           ];
 
           buildInputs = [ libxml2 ];
@@ -86,7 +86,7 @@
             "-DCMAKE_C_COMPILER=clang"
             "-DCMAKE_CXX_COMPILER=clang++"
             "-DLLVM_ENABLE_LLD=ON"
-            #"-DLLVM_USE_LINKER=${llvmPackages_16.bintools}/bin/lld"
+            #"-DLLVM_USE_LINKER=${llvmPackages_17.bintools}/bin/lld"
             # CCache can drastically speed up further rebuilds, try adding:
             #"-DLLVM_CCACHE_BUILD=ON"
             # libxml2 needs to be disabled because the LLVM build system ignores its .la
@@ -101,7 +101,7 @@
           # '';
         };
 
-        circt = with final; llvmPackages_16.stdenv.mkDerivation rec {
+        circt = with final; llvmPackages_17.stdenv.mkDerivation rec {
           name = "circt-${version}";
 
           src = fetchFromGitHub {
@@ -119,9 +119,9 @@
             cmake
             #ncurses
             #zlib
-            #llvmPackages_16.llvm
-            llvmPackages_16.clang
-            llvmPackages_16.bintools
+            #llvmPackages_17.llvm
+            llvmPackages_17.clang
+            llvmPackages_17.bintools
             mlir
             lit
           ];
