@@ -9,7 +9,7 @@
     let
 
       # git revision to use (for version and git pull
-      llvmRevision = "main";
+      llvmRevision = "c48aa78";
       #llvmRevision = "08ed557714eed7f5cde9d1c5606f58280683884a";
       circtRevision = "39b4f01a665e62b8770ea66b31abe7c1b8a9bfb2";
 
