@@ -43,7 +43,7 @@
             owner = "llvm";
             repo = "llvm-project";
             rev = llvmRevision;
-            sha256 = "sha256-9x+64s33GYpXc232WmyguKYqWsb0vCZm046jsMvHSaM="; # lib.fakeSha256;
+            sha256 = "sha256-OguY4EpGVl0bm1stdb6t4Ckrjt1uXvhmA87NuVt5t3c="; # lib.fakeSha256;
           };
 
           sourceRoot = "source/llvm";
